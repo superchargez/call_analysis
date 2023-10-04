@@ -1,7 +1,7 @@
 import numpy as np
 import soundfile as sf
 
-def detect_silence(audio_data, sample_rate, threshold=0.01, frame_size=0.01,
+def detect_silence(audio_data, sample_rate, threshold=0.05, frame_size=0.01,
                    hop_size=0.005, min_silence_len=20):
   """Detects silence in audio data using the energy thresholding technique.
 
@@ -54,10 +54,46 @@ def detect_silence(audio_data, sample_rate, threshold=0.01, frame_size=0.01,
   return silent_zones
 
 
-audio_data, sample_rate = sf.read(r'static\audio\3119753712.wav')
+audio_data, sample_rate = sf.read(r'static/audio/3119753712.wav')
 
+
+import time
+
+start_time = time.time()
+
+# Call your function here
 silent_zones = detect_silence(audio_data, sample_rate)
+# print(type(silent_zones))
+end_time = time.time()
+
+execution_time = end_time - start_time
+
+print(f"The function took {execution_time} seconds to run.")
 
 # Print the list of silent zones.
 for start_time, end_time in silent_zones:
     print(f"Silent zone from {start_time:.3f}s to {end_time:.3f}s")
+
+# Create an array for the time axis
+t = np.arange(len(audio_data)) / sample_rate
+from matplotlib import pyplot as plt
+# Plot the waveform
+plt.plot(t, audio_data)
+
+# Plot the silent zones
+for start_time, end_time in silent_zones:
+    plt.axvspan(start_time, end_time, color='r', alpha=0.5, label='Silent zones')
+
+threshold = abs(audio_data).max()*0.05
+# Plot the horizontal lines to indicate the range of silence
+plt.axhline(y=threshold, color='r', linestyle='-', label='Upper bound of silence')
+plt.axhline(y=-threshold, color='r', linestyle='-', label='Lower bound of silence')
+
+# Set the title and labels
+plt.title('Waveform')
+plt.xlabel('Time (seconds)')
+plt.ylabel('Amplitude')
+
+# Save the plot to a file
+# plt.savefig('waveform.png')
+plt.show()
